@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Portal de Serviços Comunitários — Protótipo com Envio de E-mail</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="icon" type="image/png" href="sally.png" />
+  
+</head>
+<body>
+
+  <a href="#main-content" class="skip-link">Pular para o formulário principal</a>
+  <div id="sr-announcer" class="sr-only" aria-live="assertive" aria-atomic="true"></div>
+
+  <header>
+    <h1>Portal de Serviços Comunitários</h1>
+    <p>Registro rápido de solicitações do bairro (Protótipo Didático — IHC)</p>
+  </header>
+
+  <main id="main-content" class="container">
+    <div class="voice-bar" role="region" aria-label="Controle de leitura em voz alta">
+      <span id="voice-status-text" class="voice-status">🔊 Leitor de voz automático: ATIVADO</span>
+      <button type="button" id="btn-toggle-voice" class="btn-voice">Desligar voz</button>
+    </div>
+
+    <div class="test-toolbar" role="region" aria-label="Controles de simulação de teste">
+      <label style="margin: 0; font-weight: 600; display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+        <input type="checkbox" id="simulate-offline" style="width: 18px; height: 18px;" />
+        Simular queda de internet ao enviar
+      </label>
+      <span id="draft-indicator" class="draft-status" aria-live="polite">Rascunho automático ativo</span>
+    </div>
+
+    <nav class="steps-bar" aria-label="Progresso do atendimento">
+      <div id="step-1" class="step active" aria-current="step">Etapa 1 de 2: Preencher pedido</div>
+      <div id="step-2" class="step">Etapa 2 de 2: Protocolo</div>
+    </nav>
+
+    <!-- TELA 1 -->
+    <section id="screen-form" class="card" aria-labelledby="title-screen-1">
+      <h2 id="title-screen-1">Registrar nova solicitação</h2>
+      <p class="helper-text">
+        Preencha os 3 campos abaixo. Itens com <span class="req-badge" aria-hidden="true">*</span><span class="sr-only">asterisco</span> são obrigatórios.
+      </p>
+
+      <div id="network-error-box" class="alert alert-error hidden" role="alert">
+        <strong>Pedido não enviado:</strong> Sua conexão falhou durante o envio.
+        <p style="margin: 0.4rem 0 0;">
+          <strong>Seus dados foram mantidos</strong> abaixo. Quando o sinal voltar, selecione "Tentar enviar novamente".
+        </p>
+      </div>
+
+      <form id="request-form" novalidate>
+        <div class="form-group" id="group-categoria">
+          <label for="categoria">1. Qual é o problema? <span class="req-badge" aria-hidden="true">*</span></label>
+          <select id="categoria" name="categoria" required aria-required="true" aria-describedby="err-categoria">
+            <option value="">Selecione uma opção...</option>
+            <option value="Iluminação pública (poste apagado ou fio solto)">Iluminação pública (poste apagado ou fio solto)</option>
+            <option value="Buraco na rua ou calçada danificada">Buraco na rua ou calçada danificada</option>
+            <option value="Limpeza de bueiro, entulho ou terreno">Limpeza de bueiro, entulho ou terreno</option>
+            <option value="Poda de árvore com risco">Poda de árvore com risco</option>
+          </select>
+          <span class="field-error" id="err-categoria">Erro: Escolha o tipo de problema na lista acima.</span>
+        </div>
+
+        <div class="form-group" id="group-endereco">
+          <label for="endereco">2. Onde fica o problema? <span class="req-badge" aria-hidden="true">*</span></label>
+          <input
+            type="text"
+            id="endereco"
+            name="endereco"
+            placeholder="Ex.: Rua das Flores, próximo ao nº 120"
+            required
+            aria-required="true"
+            aria-describedby="hint-endereco err-endereco"
+          />
+          <small id="hint-endereco" class="sr-only">Digite o nome da rua e um número ou ponto de referência.</small>
+          <span class="field-error" id="err-endereco">Erro: Informe o nome da rua e um ponto de referência.</span>
+        </div>
+
+        <div class="form-group" id="group-descricao">
+          <label for="descricao">3. Explique o que está acontecendo <span class="req-badge" aria-hidden="true">*</span></label>
+          <textarea
+            id="descricao"
+            name="descricao"
+            placeholder="Ex.: A lâmpada do poste está apagada há três dias, deixando a esquina escura."
+            required
+            aria-required="true"
+            aria-describedby="err-descricao"
+          ></textarea>
+          <span class="field-error" id="err-descricao">Erro: Escreva uma breve descrição para ajudar a equipe local.</span>
+        </div>
+
+        <div class="btn-group">
+          <button type="button" id="btn-clear" class="btn btn-outline">Limpar campos</button>
+          <button type="submit" id="btn-submit" class="btn btn-primary">Enviar solicitação</button>
+        </div>
+      </form>
+    </section>
+
+    <!-- TELA 2 -->
+    <section id="screen-confirmation" class="card hidden" aria-labelledby="title-screen-2" tabindex="-1">
+      <div class="alert alert-success" role="status">
+        <strong id="title-screen-2" style="font-size: 1.2rem;">Solicitação enviada para o e-mail da equipe!</strong>
+        <p style="margin: 0.35rem 0 0;">Seu pedido foi registrado e encaminhado para atendimento.</p>
+      </div>
+
+      <div class="protocol-box">
+        <span>Número de protocolo:</span>
+        <span class="protocol-code" id="protocol-number">#2026-0000</span>
+        <small id="protocol-date" style="color: var(--text-muted);"></small>
+      </div>
+
+      <div class="summary-list" aria-label="Resumo do pedido enviado">
+        <p><strong>Problema:</strong> <span id="res-categoria"></span></p>
+        <p><strong>Local:</strong> <span id="res-endereco"></span></p>
+        <p><strong>Descrição:</strong> <span id="res-descricao"></span></p>
+        <p><strong>Prazo estimado:</strong> Até <strong>3 dias úteis</strong>.</p>
+      </div>
+
+      <button type="button" id="btn-copy" class="btn btn-primary">Copiar número de protocolo</button>
+      <p id="copy-feedback" role="status" aria-live="polite" style="text-align: center; font-weight: 700; color: #047857; margin: 0.5rem 0;"></p>
+      <button type="button" id="btn-new" class="btn btn-secondary">Registrar outra solicitação</button>
+    </section>
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>
